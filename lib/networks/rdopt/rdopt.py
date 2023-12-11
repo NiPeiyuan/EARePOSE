@@ -172,7 +172,13 @@ class RDOPT(nn.Module):
 
 
 
-
+    def rouconvert(self, c, miu, z):
+        up = miu * (c ** 2)
+        down = miu * (c ** 2) + z
+        sqrtrou = up / down 
+        # if sqrtrou.any()<0 or miu<0:
+        #     print('wrong') 
+        return sqrtrou ** 2
 
 
 
@@ -320,7 +326,14 @@ class RDOPT(nn.Module):
         max_ = 5
         lambda_ = 10. ** (min_ + renta.sigmoid() * (max_ - min_))
  
-        weight = W_ref * W_q
+        #weight= W_ref * W_q
+        c_predicted = W_ref * W_q
+    
+    
+        e = (F_ref - F_q)
+        z = e ** 2
+        weight = self.rouconvert(c_predicted, 1.0, z.sum(1).unsqueeze(1))#prediction mode# This is sqrt of rou function
+
 
         e = (F_ref - F_q)
  
